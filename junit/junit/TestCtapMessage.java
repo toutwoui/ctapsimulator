@@ -1,5 +1,7 @@
 package junit;
 
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 
 import org.junit.Test;
@@ -56,7 +58,7 @@ public class TestCtapMessage {
 			(byte)0x84,(byte)0x1E,(byte)0x93};
 	
 	@Test
-	public void testgetvalue() throws ParserException
+	public void testgetvalue() throws ParserException, NoSuchAlgorithmException
 	{
 		CtapParser p=new CtapParser();
 		CtapMessage m=(CtapMessage)p.parse(realMessage);
@@ -72,6 +74,16 @@ public class TestCtapMessage {
 		assert("F10B9F1C083331333930393539F57CDF1E0400000786DF200101DF210288105F2A020978DF5006000000000500EA10EF0EDF23020001DF24060000000005008906313233343536DF270720161205161609EB2E57136060773827525607D20116020000000000000F5A0860607738275256075F3401015F24032011305F30020602DF2E020000DF2F020000F74F8406A00000026601820218009F0206000000000500950580000080009A031612059C01009F360200139F3704A0ABB31B9F26087BB1D15122D69A9F9F2701809F100706010A03A400009F3403010302FA0EDF680400000001DF6B040000001CFB20EF1EDF5F023003DF7F040000001C9F160F313233343536373800000000000000".equals(m.getTag("F0.E2")));
 		String fullmsg=Converter.bin2hex(realMessage);
 		assert(fullmsg.contains(m.getTag("F0")));
+		
+		System.out.println("Checksum in message(F0.E3.DF8153)");
+		System.out.println(m.getTag("F0.E3.DF8153"));
+		
+		MessageDigest messageDigest=MessageDigest.getInstance("SHA-1");
+		messageDigest.reset();
+		messageDigest.update(Converter.hex2bin(m.getTag("F0.E2")));
+		System.out.println("Computed checksum");
+		System.out.println(Converter.bin2hex(messageDigest.digest()));
+		
 	}
 	@Test
 	public void testFindTags() throws ParserException
@@ -156,5 +168,14 @@ public class TestCtapMessage {
 		System.out.println("After having added BRIL.BROL");
 		System.out.println(m.dump());
 		assert(!(m.findTags("BROL")==null));
+		
+		// trying to change root
+		boolean exceptionRaised=false;
+		try
+		{
+			m.setTag("F1.E1.BRIL.BROL", "value");
+		}
+		catch(IllegalArgumentException e){exceptionRaised=true;};
+		assert(exceptionRaised);
 	}
 }

@@ -108,7 +108,7 @@ public class CtapMessage extends Message {
 	}
 	
 	/**
-	 * Set a value in a non-composite tag
+	 * Set a value in a non-composite tag. The root must match, if any intermediate tag is not found, it will be created on the fly
 	 * 
 	 * @param tag full path of the tag (e.g. F0.E1.D0)
 	 * @param value String value of the tag
@@ -116,8 +116,8 @@ public class CtapMessage extends Message {
 	 */
 	public void setTag(String tag,String value) throws IllegalArgumentException
 	{
-		if(tag==null||value==null)throw new IllegalArgumentException();
-		
+		if(tag==null||value==null)throw new IllegalArgumentException("setTag called with null argument(s)");
+		if(!tag.startsWith(getRootElement().getName())) throw new IllegalArgumentException("root element does not match");
 		Element e=getRootElement();
 		StringTokenizer st=new StringTokenizer(tag,".");
 		String s;
@@ -126,6 +126,7 @@ public class CtapMessage extends Message {
 		while(e.getName().equalsIgnoreCase(s))
 		{
 			try{s=st.nextToken();}catch(NoSuchElementException ex){e.setValue(value);return;}; // reached the end of the tree --> change value
+			
 			List<Element> l=e.getSubElements(); // digging in the tree
 			boolean found=false;
 			for(Element el:l)
@@ -142,7 +143,7 @@ public class CtapMessage extends Message {
 			{
 				// looked in all tags, but could not find a suitable one... create it
 				if(tag.endsWith(s))
-				{ // creating ending leaf
+				{ // all tree except last element has been traversed --> create value
 					Element newel=new Element(s,value);
 					e.addSubElement(newel);
 					return;
@@ -152,9 +153,12 @@ public class CtapMessage extends Message {
 					Element newel=new Element(s,new ArrayList<Element>());
 					e.addSubElement(newel);
 					e=newel;
-					break;
+					continue;
 				}
 			}
+			
+			
 		}
+		// At this point, the insertion failed
 	}
 }

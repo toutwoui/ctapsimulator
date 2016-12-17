@@ -155,7 +155,7 @@ public class Element {
 			for(Element subElement:subElements)
 			{
 				ret+=subElement.dump(prefix);
-				ret+="\n";
+				if(!(ret.endsWith("\n")))ret+="\n";
 			}
 		}
 		return ret;
