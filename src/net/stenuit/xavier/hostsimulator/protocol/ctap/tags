@@ -1,0 +1,353 @@
+# List of CTAP tags
+# TAG,NAME,FORMAT
+#
+# format=8i,4x, ... or c (for compound tags)
+# just put "c" or "x" if you just know if the tag is compound or not
+57,ISO Track-2 Data,x
+5A,Primary Account Number,x
+5F23,ISO Track-3 Data,x
+5F24,Expiration Date,x
+5F28,Issuer Country Code,x
+5F2A,Transaction Currency Code,x
+5F30,Service Code,x
+5F34,PAN Sequence Number,x
+5F36,Transaction Currency Exponent,x
+71,Issuer Script Template 1,x
+72,Issuer Script Template 2,x
+82,Application Interchange Profile,x
+84,Application Identifier,x
+89,Authorization Code,x
+8A,Authorization Response Code,x
+8F,Certification Authority Public Key Index,x
+91,Issuer Authentication Data,x
+95,Terminal Verification Results,x
+9A,Transaction Date,x
+9C,Transaction Type,x
+9F02,Amount, Authorized (Numeric),x
+9F03,Amount, Other (Numeric),x
+9F09,Terminal Application Version Number,x
+9F10,Issuer Application Data,x
+9F15,Merchant Category Code,x
+9F16,Merchant User Identifier,x
+9F1A,Terminal Country Code,x
+9F1B,Terminal Floor Limit (ICC - International),x
+9F1C,Terminal Identifier,x
+9F1E,Terminal Serial Number,x
+9F20,ISO Track-2 Discretionary Data,x
+9F22,Index,x
+9F26,Application Cryptogram,x
+9F27,Cryptogram Information Data,x
+9F33,Terminal Capabilities,x
+9F34,Cardholder Verification Method Results,x
+9F35,Terminal Type,x
+9F36,Application Transaction Counter,x
+9F37,Unpredictable Number,x
+9F39,Point-of-Service Entry Mode,x
+9F3C,Transaction Reference Currency Code,x
+9F3D,Transaction Reference Currency Exponent,x
+9F40,Additional Terminal Capabilities,x
+9F66,Terminal Transaction Qualifiers,x
+B1,Transaction Log Information,x
+B2,Transaction Log Records,x
+B3,Log Totals,x
+B4,Petrol Details,x
+B6,Track-3 BIN Range Table,x
+BE,Connection Data 2,x
+BF01,Security Scheme Table,x
+BF02,Terminal Security Group,x
+BF03,Security Provider Certificate,x
+BF04,Personalization Provider Certificate,x
+BF05,TSC Certificate,x
+BF06,Contactless Mode Management,x
+BF7A,DCC Group,x
+BF7B,Cardholder Billing Data,x
+BF7C,Exchange Rate Data,x
+BF7D,Commission Data,x
+BF7E,Receipt Line 1,x
+BF7F,Receipt Line 2,x
+BF8113,Access Provider Table,x
+C0,Financial Counter Identifier,x
+C1,Financial Counter Currency,x
+C1,Log Currency Code,x
+C2,Financial Counter Label Name,x
+C3,Number of Transactions,x
+C4,Cumulative Total Amount,x
+C5,Batch Number,x
+C5,Period Number,x
+C7,Accounted Services,x
+C8,Log Creation Date,x
+C8,Period Opening Date,x
+C9,Log Closing Date,x
+C9,Period Closing Date,x
+CA,Cyclic Redundancy Code,x
+CF,Message Authentication Code,x
+D0,Message Type Identifier,x
+D1,Message Sequence Number,x
+D2,Transmission Retry Number,x
+D3,Application Protocol Version,x
+D4,Common Parameters Identifier,x
+D8,Primary Elements,x
+D9,EMV Elements,x
+DF01,DOL for Primary Elements,x
+DF02,DOL for EMV Elements,x
+DF04,Terminal Manufacturer Identifier,x
+DF05,Terminal Model,x
+DF06,Printer Line Width,x
+DF08,Terminal Certification Number,x
+DF0A,Network Type,x
+DF0B,Access Provider Identifier,x
+DF0B,Access Provider,x
+DF0C,Terminal Phone Number,x
+DF0D,Log Uploading Reason,x
+DF0F,Sequence Number,x
+DF10,Transaction Mode,x
+DF11,Request for Action(s),x
+DF12,Merchant Language,x
+DF13,Merchant Text,x
+DF14,Transaction Receipt Acquirer Zone,x
+DF15,Shop Logo,x
+DF16,Shop Location,x
+DF17,Free Form Management Receipt,x
+DF18,Account Label Name,x
+DF19,Account Number,x
+DF1A,Cardholder Language,x
+DF1B,Cardholder Text,x
+DF1C,Cardholder Encrypted PIN,x
+DF1D,Remaining PIN Trials,x
+DF1E,Transaction Identifier,x
+DF1F,Next Transaction Identifier,x
+DF20,Transaction Session Number,x
+DF21,Transaction Service Identifier,x
+DF22,Merchant Reference,x
+DF23,Amount Identifier,x
+DF24,Amount Value,x
+DF25,Terminal Endpoint Identifier,x
+DF26,Transaction Authorized Amount,x
+DF27,Date and Time,x
+DF2B,Card Validation Code 2,x
+DF2C,Magnetic Stripe Fallback Reason,x
+DF2D,Rejection Code,x
+DF2E,Host Incident Code,x
+DF2E,Transaction Host Incident Code,x
+DF2F,Transaction Terminal Treatment Result,x
+DF30,Acquirer Discretionary Data,x
+DF3D,Cardholder Verification Modes,x
+DF3E,Card Data Security Requirements,x
+DF3F,Transaction Receipt Is Required,x
+DF41,Balance Action Code,x
+DF42,Allowed Card-Entry Modes,x
+DF43,Original Sequence Number,x
+DF44,Maximal Percentage Allowed for Extra,x
+DF45,Clipping for PAN,x
+DF46,Formatted Card Number,x
+DF47,Overspending Tolerance,x
+DF48,Validity Term,x
+DF4A,Terminal Floor Limit (ICC - Domestic),x
+DF4B,Lower Consecutive Offline Limit,x
+DF4C,Terminal Floor Limit (Magnetic Stripe),x
+DF4D,Upper Consecutive Offline Limit,x
+DF4E,PIN Length Type,x
+DF4F,Allowed Services,x
+DF50,Transaction Amount,x
+DF53,Modulus,x
+DF54,Exponent,x
+DF55,Issuer Script Results,x
+DF56,TAC - Default,x
+DF56,Terminal Action Code - Default,x
+DF57,TAC - Denial,x
+DF57,Terminal Action Code - Denial,x
+DF58,TAC - Online,x
+DF58,Terminal Action Code - Online,x
+DF5A,Target Percentage for Random Selection,x
+DF5B,Maximal Target Percentage for biased Random Selection,x
+DF5C,Threshold Value for biased Random Selection,x
+DF5D,Default DDOL,x
+DF5E,Default TDOL,x
+DF5F,Card Brand Identifier,x
+DF60,Terminal Manager Identifier,x
+DF61,Terminal Manager Label Name,x
+DF62,Terminal Manager Parameters Identifier,x
+DF63,Date for Update,x
+DF64,Checksum,x
+DF65,Card Balance,x
+DF66,First Test Digits,x
+DF67,Additional Test Digits,x
+DF68,Acquirer Identifier,x
+DF69,Acquirer Label Name,x
+DF6A,Registered Application Provider Identifier,x
+DF6B,Acquirer Parameters Identifier,x
+DF6C,Second Call Address,x
+DF6E,Time-Out for Answer,x
+DF6F,Host Name,x
+DF70,Contact Port,x
+DF71,Dual Address Mode,x
+DF72,First Call Address,x
+DF74,First ISDND NUA,x
+DF75,Second ISDND NUA,x
+DF76,Modem Standards,x
+DF77,Transaction Reference Currency Conversion,x
+DF78,Balance Mode,x
+DF79,Free Form Management Function Authorized,x
+DF7B,ICC EMV Management Support,x
+DF7C,Number of Sessions,x
+DF7D,Manual-Entry Processing Options,x
+DF7E,Card Brand Label Name,x
+DF7F,Card Brand Parameters Identifier,x
+DF8101,Cancellable Services,x
+DF8102,User Guidance Variant,x
+DF8104,Additional Data Identifier,x
+DF8105,Merchant Information Text,x
+DF8106,Cardholder Invitation Text,x
+DF8107,Data Entry Source,x
+DF8108,Data Input Length,x
+DF8109,Maximal Number of Retries,x
+DF810A,Required Verification,x
+DF810B,Required Action,x
+DF810C,Data Value,x
+DF810D,Data Header for Transaction Receipt,x
+DF810E,Result on Invalid Data Value,x
+DF810F,Result on Cardholder Cancellation,x
+DF8110,Result on Time-Out Expiration,x
+DF8111,Data Value Verification Result,x
+DF8112,Amount Label Name,x
+DF8113,Pump Number,x
+DF8114,Volume,x
+DF8115,Unit Price,x
+DF8116,Pump-Controller Error Code,x
+DF8117,Allowed Petrol Products,x
+DF8118,ATR Data,x
+DF8148,Site Identifier,x
+DF8149,Petrol Product,x
+DF814A,Petrol Volume,x
+DF814B,Number of Warm Retries,x
+DF814C,Maximal Cold Message Delay,x
+DF814D,Allowed Terminal Mode,x
+DF814E,Action Panel,x
+DF814F,Service Code List,x
+DF8150,Voice Referral Phone Number,x
+DF8152,Optional Data Element Support,x
+DF8153,Modification Detection Code,x
+DF8154,Allowed Transaction Initiator,x
+DF8155,Transaction Initiator,x
+DF8156,External Device Type,x
+DF8157,External Device Label Name,x
+DF8158,External Device Version,x
+DF8159,External Device Protocol,x
+DF815A,Maximal Message Size,x
+DF815B,Transaction Authorized Volume,x
+DF815C,Maximal Transaction Number,x
+DF815D,Transaction Number Threshold,x
+DF815E,Maximal Total Amount,x
+DF815F,Total Amount Threshold,x
+DF8160,Maximal Transaction Amount,x
+DF8161,Maximal Day Number,x
+DF8162,Maximal Log Size,x
+DF8163,Uploading Days,x
+DF8164,Uploading Time,x
+DF8165,Black List Identifier,x
+DF8166,Black List Validity Date,x
+DF8167,Complete Black List,x
+DF8168,Cancelled Black List,x
+DF8169,Complementary Black List,x
+DF816A,Local Sequence Number,x
+DF816B,Formatted Card Sequence Number,x
+DF816D,Issuer Label Name,x
+DF816E,Maximal Log Number,x
+DF816F,Next Batch Number,x
+DF8170,PAN, Extended,x
+DF817F,Default Amount,x
+DF8201,TSC Manufacturer Identifier,x
+DF8202,TSC Serial Number,x
+DF8203,TSC Software Version,x
+DF8204,Security Provider Identifier,x
+DF8205,Security Scheme TSC Identifier,x
+DF8206,Security Protocol Identifier,x
+DF8207,Master Key Version,x
+DF8208,Key Load Number,x
+DF8209,Key Evolution Identifier,x
+DF820A,Key Load Protocol Identifier,x
+DF820B,Key Load Reason(s),x
+DF820C,Key Load Reference Number,x
+DF820D,Key Establishment Cryptogram,x
+DF820E,Payload Type,x
+DF820F,Payload,x
+DF8210,TSC C-TAP Authority Identifier,x
+DF8211,TSC C-TAP Authority Public Key Index,x
+DF8212,Security Provider Public Key Certificate,x
+DF8213,Security Provider Public Key Exponent,x
+DF8214,Security Provider Public Key Remainder,x
+DF8215,Personalization Provider Public Key Certificate,x
+DF8216,Personalization Provider Public Key Exponent,x
+DF8217,Personalization Provider Public Key Remainder,x
+DF8218,TSC Public Key Certificate,x
+DF8219,TSC Public Key Exponent,x
+DF821A,TSC Public Key Remainder,x
+DF821B,TSC Encrypted Data,x
+DF8220,Object Identifier,x
+DF8221,Object Signature,x
+DF8225,Terminal Contactless Entry Capability,x
+DF8226,Terminal Contactless Transaction Limit,x
+DF8227,Terminal Contactless Floor Limit,x
+DF8228,Terminal CVM Required Limit,x
+DF8229,Terminal Receipt Required Limit,x
+DF822C,Final Terminal Verification Results,x
+DF822E,Maximal Accumulation Number,x
+DF822F,Maximal Accumulation Time,x
+DF8231,Original Transaction Identifier,x
+DF8232,Cashier Identifier,x
+DF8233,Cash Register Identifier,x
+DF8237,Black List Is Required,x
+DF8238,Transaction Receipt Options,x
+DF8239,Day Cut-Off Time,x
+DF823A,Maximal Cash-Back Amount,x
+DF823E,Cardholder Receipt Text,x
+DF823F,Acquirer Parameters Update Mode,x
+DF902F,Access Provider Label Name,x
+DFFF07,Cardholder Billing Currency Name,x
+DFFF08,Cardholder Billing Amount,x
+DFFF0A,Commission Amount,x
+DFFF0B,Commission Percentage,x
+DFFF0C,DCC Allowed,x
+DFFF0D,DCC Floor Limit,x
+DFFF0F,DCC Disclaimer,x
+DFFF11,Token,x
+DFFF13,BIN,x
+DFFF14,Exchange Rate,x
+DFFF15,DCC Offer Accepted,x
+DFFF16,Reference Rate Timestamp,x
+DFFF17,Mark-Up Percentage,x
+DFFF18,Label 1,x
+DFFF19,Value 1,x
+DFFF1A,Label 2,x
+DFFF1B,Value 2,x
+DFFF1C,Cardholder Billing Currency Code,x
+DFFF1D,Cardholder Billing Currency Exponent,x
+E0,Additional Data,x
+E1,Message Header,c
+E2,Message Body,c
+E3,Message Footer,c
+E5,AID Table,c
+E6,BIN Range Table,c
+E7,Acquirer Table,c
+E8,Certification Authority Public Key Table,x
+E9,Service Code Processing Options,x
+EA,Detailed Transaction Amount,x
+EB,Card Information,x
+EC,External Devices Table,x
+ED,Card Brand Risk Management,x
+EE,Connection Data,x
+EF,Table Records,c
+F1,Terminal Group,c
+F2,Merchant Group,c
+F3,Cardholder Group,c
+F4,Online PIN Group,c
+F5,Transaction Group,c
+F7,EMV Chip Technology Group,c
+F8,Counters Group,c
+F9,Terminal Manager Parameters Group,c
+FA,Acquirer Parameters Group,c
+FB,Card Brand Table,c
+FC,Financial Counter Information,x
+FD,Merchant Account Numbers,x
+FE,Currency Profile,x
+F0,Message,c
