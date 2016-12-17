@@ -145,10 +145,16 @@ public class TestCtapMessage {
 		m.setTag("F0.E2.F1.9F1C", "12345678");
 		assert(m.getTag("F0.E2.F1.9F1C").equals("12345678"));
 		
+		// add a non-existing tag as leaf of existing element
 		assert(m.findTags("TOTO")==null);
 		m.setTag("F0.E1.TOTO", "HELLO");
 		assert(!(m.findTags("TOTO")==null));
 		
-		
+		// add several non-existing tags
+		assert(m.findTags("BROL")==null);
+		m.setTag("F0.E1.BRIL.BROL", "taratata");
+		System.out.println("After having added BRIL.BROL");
+		System.out.println(m.dump());
+		assert(!(m.findTags("BROL")==null));
 	}
 }

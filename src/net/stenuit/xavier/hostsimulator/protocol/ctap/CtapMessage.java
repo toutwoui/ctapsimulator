@@ -143,13 +143,13 @@ public class CtapMessage extends Message {
 				// looked in all tags, but could not find a suitable one... create it
 				if(tag.endsWith(s))
 				{ // creating ending leaf
-					Element newel=new Element(tag,value);
+					Element newel=new Element(s,value);
 					e.addSubElement(newel);
 					return;
 				}
 				else
 				{ // creating intermediate tag and enters it
-					Element newel=new Element(tag,new ArrayList<Element>());
+					Element newel=new Element(s,new ArrayList<Element>());
 					e.addSubElement(newel);
 					e=newel;
 					break;
