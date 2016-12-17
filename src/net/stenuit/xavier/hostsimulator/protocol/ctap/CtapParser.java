@@ -44,7 +44,7 @@ public class CtapParser extends Parser {
 		String s;
 		try
 		{
-			ctapTags=new HashMap<>();
+			ctapTags=new HashMap<String,String>();
 			while((s=br.readLine())!=null)
 			{
 				if(s.startsWith("#"))continue;// skips comments
