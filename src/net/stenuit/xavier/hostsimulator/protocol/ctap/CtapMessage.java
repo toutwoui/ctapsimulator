@@ -106,4 +106,55 @@ public class CtapMessage extends Message {
 		}
 		return null;
 	}
+	
+	/**
+	 * Set a value in a non-composite tag
+	 * 
+	 * @param tag full path of the tag (e.g. F0.E1.D0)
+	 * @param value String value of the tag
+	 * @throws IllegalArgumentException
+	 */
+	public void setTag(String tag,String value) throws IllegalArgumentException
+	{
+		if(tag==null||value==null)throw new IllegalArgumentException();
+		
+		Element e=getRootElement();
+		StringTokenizer st=new StringTokenizer(tag,".");
+		String s;
+		s=st.nextToken();
+		
+		while(e.getName().equalsIgnoreCase(s))
+		{
+			try{s=st.nextToken();}catch(NoSuchElementException ex){e.setValue(value);return;}; // reached the end of the tree --> change value
+			List<Element> l=e.getSubElements(); // digging in the tree
+			boolean found=false;
+			for(Element el:l)
+			{
+				if(el.getName().equalsIgnoreCase(s))
+				{
+					e=el;
+					found=true;
+					break;
+				}
+			}
+			
+			if(!found)
+			{
+				// looked in all tags, but could not find a suitable one... create it
+				if(tag.endsWith(s))
+				{ // creating ending leaf
+					Element newel=new Element(tag,value);
+					e.addSubElement(newel);
+					return;
+				}
+				else
+				{ // creating intermediate tag and enters it
+					Element newel=new Element(tag,new ArrayList<Element>());
+					e.addSubElement(newel);
+					e=newel;
+					break;
+				}
+			}
+		}
+	}
 }

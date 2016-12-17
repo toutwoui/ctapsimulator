@@ -133,4 +133,22 @@ public class TestCtapMessage {
 		}
 		assert(found==2);
 	}
+	
+	@Test
+	public void testsetValue() throws ParserException
+	{
+		CtapParser p=new CtapParser();
+		CtapMessage m=(CtapMessage)p.parse(realMessage);
+		
+		// replace an existing tag
+		assert(!m.getTag("F0.E2.F1.9F1C").equals("12345678"));
+		m.setTag("F0.E2.F1.9F1C", "12345678");
+		assert(m.getTag("F0.E2.F1.9F1C").equals("12345678"));
+		
+		assert(m.findTags("TOTO")==null);
+		m.setTag("F0.E1.TOTO", "HELLO");
+		assert(!(m.findTags("TOTO")==null));
+		
+		
+	}
 }
