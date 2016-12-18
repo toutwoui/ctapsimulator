@@ -5,12 +5,9 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.logging.FileHandler;
-import java.util.logging.Handler;
-import java.util.logging.Level;
-import java.util.logging.LogManager;
-import java.util.logging.Logger;
-import java.util.logging.SimpleFormatter;
+
+import net.stenuit.xavier.tools.Log;
+
 
 public class TcpServer {
 	private static final int PORT=8079;
@@ -18,7 +15,6 @@ public class TcpServer {
 	
 	private ServerSocket serverSocket;
 	private ExecutorService executorService=Executors.newFixedThreadPool(NUMTHREADS);
-	private Logger logger=Logger.getLogger("TCPServer");
 	
 	private static TcpServer instance;
 	
@@ -28,22 +24,11 @@ public class TcpServer {
 	}
 
 	private void runServer() {
-		System.out.println("java.util.logging.config.file="+System.getProperty("java.util.logging.config.file"));
-		System.out.println("Number of handlers : "+logger.getHandlers().length);
 		try
 		{
 			
-			//Handler handler=new FileHandler("/tmp/mylog",true/*append*/);
-			//SimpleFormatter sf=new SimpleFormatter();
-			//handler.setFormatter(sf);
-			//logger.addHandler(handler);
-			//logger.setLevel(Level.FINE);
-			
-			LogManager logManager=LogManager.getLogManager();
-			logManager.readConfiguration(getClass().getResourceAsStream("logging.properties"));
-			
 
-			logger.log(Level.SEVERE,"Starting Server");
+			Log.fatal("Starting Server");
 			
 			
 			serverSocket=new ServerSocket(PORT);
@@ -67,7 +52,7 @@ public class TcpServer {
 		
 		catch(IOException e)
 		{
-			logger.log(Level.SEVERE,"Could not start server on port "+PORT);
+			Log.fatal("Could not start server on port "+PORT);
 			e.printStackTrace();
 		}
 		
