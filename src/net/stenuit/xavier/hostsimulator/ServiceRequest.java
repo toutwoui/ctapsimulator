@@ -5,23 +5,20 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import net.stenuit.xavier.hostsimulator.protocol.ParserException;
 import net.stenuit.xavier.hostsimulator.protocol.ctap.CtapMessage;
 import net.stenuit.xavier.hostsimulator.protocol.ctap.CtapParser;
 import net.stenuit.xavier.tools.Converter;
+import net.stenuit.xavier.tools.Log;
 
 public class ServiceRequest implements Runnable {
 	private Socket socket;
-	private Logger logger;
 	private static final int SO_TIMEOUT=100; // how many milliseconds waiting for data on socket
 	private static final int MAX_MSG_LEN=2000; // Maximum message size
 	
 	public ServiceRequest(Socket connection) {
         this.socket = connection;
-        this.logger=Logger.getLogger("TCPServer");
     }
 	
 	@Override
@@ -34,7 +31,7 @@ public class ServiceRequest implements Runnable {
 			String line;
 			while((line=br.readLine())!=null)
 			{
-				logger.log(Level.INFO, line);
+				Log.debug(line);
 				bw.write(""+line.length());
 				bw.flush();
 			}*/
@@ -55,7 +52,7 @@ public class ServiceRequest implements Runnable {
 				is.read(rawMsg,6,len);
 				CtapParser p=new CtapParser();
 				CtapMessage msg=(CtapMessage)p.parse(rawMsg);
-				logger.log(Level.FINE, msg.dump());
+				Log.debug(msg.dump());
 				// System.out.println(msg.dump());
 				
 				byte[] msgtypeb=Converter.hex2bin(msg.getTag("F0.E1.D0"));
@@ -63,43 +60,43 @@ public class ServiceRequest implements Runnable {
 				switch(msgtype)
 				{
 					case "ci":
-						logger.log(Level.INFO, "Received C-INQ");
+						Log.info("Received C-INQ");
 						break;
 					case "ri":
-						logger.log(Level.INFO, "Received R-INQ");
+						Log.info("Received R-INQ");
 						break;
 					case "ct":
-						logger.log(Level.INFO, "Received C-TRA");
+						Log.info("Received C-TRA");
 						break;
 					case "rt":
-						logger.log(Level.INFO, "Received R-TRA");
+						Log.info("Received R-TRA");
 						break;
 					case "cb":
-						logger.log(Level.INFO,"Received C-BAL");
+						Log.info("Received C-BAL");
 						break;
 					case "rb":
-						logger.log(Level.INFO, "Received R-BAL");
+						Log.info("Received R-BAL");
 						break;
 					case "cp":
-						logger.log(Level.INFO, "Received C-PAR");
+						Log.info("Received C-PAR");
 						break;
 					case "rp":
-						logger.log(Level.INFO, "Received R-PAR");
+						Log.info("Received R-PAR");
 						break;
 					case "rX":
-						logger.log(Level.INFO, "Received Rx");
+						Log.info("Received Rx");
 						break;
 					default:
-						logger.log(Level.WARNING, "Received unknown message "+msgtype);
+						Log.error("Received unknown message "+msgtype);
 				}
 			}
 			catch(SocketTimeoutException e)
 			{
-				logger.log(Level.WARNING, "Timeout on socket");
+				Log.error("Timeout on socket");
 			}
 			catch(ParserException e)
 			{
-				logger.log(Level.WARNING, "Problem reading message : "+e.getMessage());
+				Log.error("Problem reading message : "+e.getMessage());
 			}
 		}
 		catch(Exception e)

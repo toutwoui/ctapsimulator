@@ -36,7 +36,7 @@ public class TcpServer {
 			{
 				try
 				{
-					System.out.println("Waiting for request");
+					Log.info("Waiting for request");
 					Socket s=serverSocket.accept();
 					executorService.submit(new ServiceRequest(s)); // code in ServiceRequest will be executed in a new thread
 					

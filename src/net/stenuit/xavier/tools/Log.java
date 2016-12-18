@@ -1,8 +1,10 @@
 package net.stenuit.xavier.tools;
 
-import java.util.logging.LogManager;
-import java.util.logging.Logger;
-
+// java.util.logging
+// import java.util.logging.LogManager;
+// import java.util.logging.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 
 /** implements log system based either on java.util.logging
@@ -18,10 +20,16 @@ public class Log {
 	{
 		try
 		{
-			logger=Logger.getLogger(LN);
-			LogManager logManager=LogManager.getLogManager();
-			Object o=new Log();
-			logManager.readConfiguration(o.getClass().getResourceAsStream("logging.properties"));
+			//java.util.logging
+			//logger=Logger.getLogger(LN);
+			//LogManager logManager=LogManager.getLogManager();
+			//Object o=new Log();
+			//logManager.readConfiguration(o.getClass().getResourceAsStream("logging.properties"));
+			
+			// Apache log4j
+			logger=LogManager.getLogger(LN);
+			
+			
 		}
 		catch(Exception e){
 			System.out.println("Could not initialize logger module");
@@ -36,14 +44,20 @@ public class Log {
 	}
 	public static synchronized void fatal(String msg)
 	{
-		logger.severe(msg);
+		// java.util.logging
+		// logger.severe(msg);
+		logger.fatal(msg);
 	}
 	public static synchronized void error(String msg)
 	{
-		logger.warning(msg);
+		// java.util.logging
+		// logger.warning(msg);
+		logger.error(msg);
 	}
 	public static synchronized void debug(String msg)
 	{
-		logger.fine(msg);
+		// java.util.logging
+		// logger.fine(msg);
+		logger.debug(msg);
 	}
 }
