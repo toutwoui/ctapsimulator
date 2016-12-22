@@ -120,7 +120,7 @@ public class CtapParser extends Parser {
 		}
 		if(!found)throw new ParserException("could not parse "+pos+"of message : "+Converter.bin2hex(rawData));
 		len=decodeLength();
-		
+		if(len<0)throw new ParserException("negative length ?");
 		if("c".equals(ctapTags.get(tagstr)))
 		{ // coumpound tag
 			ArrayList<Element> elmList=new ArrayList<Element>();
@@ -157,12 +157,12 @@ public class CtapParser extends Parser {
 			return (int)b1;
 		
 		if(b1==1) // b1 contains 1, b2 contains len
-			return (int)b2;
+			return (int)(b2&0xFF);
 		
 		if(b1==2) // b1 contains 2, b2 and b3 contains len
 		{
 			b3=rawData[pos++];
-			return((int)b2<<8)|((int)b3);
+			return((int)b2<<8)|((int)(b3&0xFF));
 		}
 		throw new ParserException("could not parse tag if its length is "+b1+" bytes long !");
 	}

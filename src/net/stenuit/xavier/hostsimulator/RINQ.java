@@ -15,7 +15,7 @@ public class RINQ {
 	{
 		byte[] ret=Converter.hex2bin(msg);
 		byte[] d1=Converter.hex2bin(D1);
-		ret[18]=d1[0];
+		ret[17]=d1[0];
 		return ret;
 	}
 }
