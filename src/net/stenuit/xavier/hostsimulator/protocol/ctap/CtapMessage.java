@@ -1,5 +1,7 @@
 package net.stenuit.xavier.hostsimulator.protocol.ctap;
 
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -9,6 +11,7 @@ import java.util.StringTokenizer;
 import net.stenuit.xavier.hostsimulator.protocol.Element;
 import net.stenuit.xavier.hostsimulator.protocol.Message;
 import net.stenuit.xavier.tools.Converter;
+import net.stenuit.xavier.tools.Log;
 
 public class CtapMessage extends Message {
 	private byte[] header; // all bytes before first tag
@@ -37,6 +40,28 @@ public class CtapMessage extends Message {
 		return(ret);
 	}
 	
+	public String rawDump()
+	{
+		String ret=Converter.bin2hex(header);
+		
+		String F0contents=getRootElement().rawDump();
+		int F0len=F0contents.length()/2;
+		ret+="F0";
+		if(F0len<=127)
+		{
+			ret+=Converter.bin2hex(new byte[]{(byte)F0len});
+		}
+		else if(F0len<=255)
+		{
+			ret+=Converter.bin2hex(new byte[]{(byte)0x81,(byte)F0len});
+		}
+		else
+		{
+			ret+=Converter.bin2hex(new byte[]{(byte)0x82,(byte)(F0len>>8),(byte)(F0len&0xFF)});
+		}
+		ret+=F0contents;
+		return ret;
+	}
 	/**
 	 * Finds all occurences of given tag
 	 * @param tagname tag to find (for example "9F1C")
@@ -160,5 +185,58 @@ public class CtapMessage extends Message {
 			
 		}
 		// At this point, the insertion failed
+	}
+	
+	/**
+	 * 
+	 * @return checksum of the message !!! it will *NOT* change value of DF8153 implicitly - message remains unchanged
+	 */
+	public String checksum()
+	{
+		try
+		{
+			String f0e2=getTag("F0.E2");
+			f0e2="E2"+taglength(f0e2)+f0e2;
+			MessageDigest messageDigest=MessageDigest.getInstance("SHA-1");
+			messageDigest.reset();
+			messageDigest.update(Converter.hex2bin(f0e2));
+			String cksum2=Converter.bin2hex(messageDigest.digest());
+			return cksum2;
+		}
+		catch(NoSuchAlgorithmException nse)
+		{
+			Log.fatal("SHA-1 is not supported by the java implementation - please use oracle java");
+			return null;
+		}
+	}
+	/**
+	 * Calculates the CTAP-encoded length of some value
+	 * For example : for 192 bytes, it will be encoded as "82C0" 
+	 * Nb - length above 65535 are not supported and will throw an illegalArgumentException
+	 * 
+	 * @param tagValueLength length to encode
+	 * @return hexadecimal dump of the length in CTAP format
+	 */
+	private String taglength(String tagValue)
+	{
+		int tagValueLength=tagValue.length()/2;
+		String ret="";
+		if(tagValueLength<=127)
+		{
+			ret=Converter.bin2hex(new byte[]{(byte)tagValueLength});
+		}
+		else if(tagValueLength<=255)
+		{
+			ret="81"+Converter.bin2hex(new byte[]{(byte)tagValueLength});
+		}
+		else if(tagValueLength<=65535)
+		{
+			ret="82"+Converter.bin2hex(new byte[]{(byte)(tagValueLength>>8),(byte)(tagValueLength&0xFF)});
+		}
+		else
+		{
+			throw new IllegalArgumentException("can not encode length larger than 65535 - you attempted to encode : "+tagValueLength);
+		}
+		return ret;
 	}
 }

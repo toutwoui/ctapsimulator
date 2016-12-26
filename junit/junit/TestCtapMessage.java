@@ -4,8 +4,12 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 
+import org.junit.Assert;
 import org.junit.Test;
+import org.junit.internal.runners.statements.Fail;
 
+import junit.framework.AssertionFailedError;
+import net.stenuit.xavier.hostsimulator.CINQ;
 import net.stenuit.xavier.hostsimulator.protocol.Element;
 import net.stenuit.xavier.hostsimulator.protocol.ParserException;
 import net.stenuit.xavier.hostsimulator.protocol.ctap.CtapMessage;
@@ -75,14 +79,55 @@ public class TestCtapMessage {
 		String fullmsg=Converter.bin2hex(realMessage);
 		assert(fullmsg.contains(m.getTag("F0")));
 		
-		System.out.println("Checksum in message(F0.E3.DF8153)");
-		System.out.println(m.getTag("F0.E3.DF8153"));
-		
-		MessageDigest messageDigest=MessageDigest.getInstance("SHA-1");
-		messageDigest.reset();
-		messageDigest.update(Converter.hex2bin(m.getTag("F0.E2")));
-		System.out.println("Computed checksum");
-		System.out.println(Converter.bin2hex(messageDigest.digest()));
+	}
+	@Test
+	public void testMessageDigest()
+	{
+		System.out.println("testMessageDigest");
+		byte[] cinq=CINQ.cinq();
+		CtapParser p=new CtapParser();
+		try
+		{
+			CtapMessage m=(CtapMessage)p.parse(cinq);
+			String f0e2=m.getTag("F0.E2");
+			String cksum=m.getTag("F0.E3.DF8153");
+			System.out.println("Checksum in message(F0.E3.DF8153)");
+			System.out.println(cksum);
+			
+			// Reconstruct tag
+			int f0e2len=f0e2.length()/2;
+			if(f0e2len<=127)
+			{
+				f0e2="E2"+Converter.bin2hex(new byte[]{(byte)f0e2len})+f0e2;
+			}
+			else if(f0e2len<=255)
+			{
+				f0e2="E281"+Converter.bin2hex(new byte[]{(byte)f0e2len})+f0e2;
+			}
+			else if(f0e2len<=65535)
+			{
+				f0e2="E282"+Converter.bin2hex(new byte[]{(byte)(f0e2len>>8),(byte)(f0e2len&0xFF)})+f0e2;
+			}
+			
+			System.out.println("Message do digest");
+			System.out.println(f0e2);
+			MessageDigest messageDigest=MessageDigest.getInstance("SHA-1");
+			messageDigest.reset();
+			messageDigest.update(Converter.hex2bin(f0e2));
+			String cksum2=Converter.bin2hex(messageDigest.digest());
+			System.out.println("Computed checksum");
+			System.out.println(cksum2);
+			
+			assert(cksum.equals(cksum2));
+			
+			assert(m.checksum().equals(cksum)); // Does the same as all lines above - but effectively checks the implementation in CtapMessage
+			
+		}
+		catch(Exception e)
+		{
+			e.printStackTrace();
+			assert(false);
+		}
 		
 	}
 	@Test

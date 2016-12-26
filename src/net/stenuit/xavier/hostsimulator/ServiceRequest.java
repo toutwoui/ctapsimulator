@@ -5,6 +5,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
+import java.util.Random;
 
 import net.stenuit.xavier.hostsimulator.protocol.ParserException;
 import net.stenuit.xavier.hostsimulator.protocol.ctap.CtapMessage;
@@ -92,21 +93,43 @@ public class ServiceRequest implements Runnable {
 				
 				byte[] msgtypeb=Converter.hex2bin(msg.getTag("F0.E1.D0"));
 				String msgtype=new String(msgtypeb,"ASCII");
+				// tags to be echoed
 				String d1=msg.getTag("F0.E1.D1");
+				String df1e=msg.getTag("F0.E2.F5.DF1E");
+				String df20=msg.getTag("F0.E2.F5.DF20");
+				String t9f1c=msg.getTag("F0.E2.F1.9F1C");
+				String df68=msg.getTag("F0.E2.FA.DF68");
+				
+				CtapMessage retmsg;
 				switch(msgtype)
 				{
 					case "ci":
 						Log.info("Received C-INQ");
-						os.write(RINQ.rinq(d1)); // answers with RINQ
-						Log.debug(p.parse(RINQ.rinq()).dump());
+						//os.write(RINQ.rinq(d1)); // answers with RINQ
+						retmsg=(CtapMessage)p.parse(RINQ.rinq(d1));
+						if(df1e!=null)retmsg.setTag("F0.E2.F5.DF1E", df1e);
+						if(df20!=null)retmsg.setTag("F0.E2.F5.DF20", df20);
+						if(t9f1c!=null)retmsg.setTag("F0.E2.F1.9F1C", t9f1c);
+						if(df68!=null)retmsg.setTag("F0.E2.FA.DF68", df68);
+						retmsg.setTag("F0.E2.F5.89", randomAuthCode());
+						retmsg.setTag("F0.E3.DF8153", retmsg.checksum());
+						
+						os.write(Converter.hex2bin(retmsg.rawDump()));
+						Log.debug("Returned R-INQ: \n"+retmsg.dump());
 						break;
 					case "ri":
 						Log.info("Received R-INQ");
 						break;
 					case "ct":
 						Log.info("Received C-TRA");
-						os.write(RTRA.rtra(d1)); // answers with RTRA
-						Log.debug(p.parse(RTRA.rtra(d1)).dump());
+						retmsg=(CtapMessage)p.parse(RTRA.rtra(d1));
+						if(df1e!=null)retmsg.setTag("F0.E2.F5.DF1E", df1e);
+						if(df20!=null)retmsg.setTag("F0.E2.F5.DF20", df20);
+						if(t9f1c!=null)retmsg.setTag("F0.E2.F1.9F1C", t9f1c);
+						if(df68!=null)retmsg.setTag("F0.E2.FA.DF68", df68);
+						retmsg.setTag("F0.E3.DF8153", retmsg.checksum());
+						os.write(Converter.hex2bin(retmsg.rawDump()));
+						Log.debug("Returned R-TRA : \n"+retmsg.dump());
 						break;
 					case "rt":
 						Log.info("Received R-TRA");
@@ -145,6 +168,21 @@ public class ServiceRequest implements Runnable {
 			// the client closed
 		}
 		try{socket.close();}catch(IOException ioe){};
+	}
+
+	/* REturns a 6 digit random number ASCII code (0x30,0x34,0x32,....)
+	 * 
+	 */
+	private String randomAuthCode() {
+		int r=new Random().nextInt(1000000);
+		
+		String ret="";
+		for(int i=0;i<6;i++)
+		{
+			ret=ret+"3"+r%10;
+			r=r/10;
+		}
+		return ret;
 	}
 
 
