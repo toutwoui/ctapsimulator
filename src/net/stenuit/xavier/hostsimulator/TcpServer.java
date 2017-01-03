@@ -10,7 +10,8 @@ import net.stenuit.xavier.tools.Log;
 
 
 public class TcpServer {
-	private static final int PORT=8079;
+	private static final int DEFAULT_PORT=8079;
+	private static int port;
 	private static final int NUMTHREADS=10;
 	
 	private ServerSocket serverSocket;
@@ -18,7 +19,12 @@ public class TcpServer {
 	
 	private static TcpServer instance;
 	
+
 	public static void main(String[] args) {
+		port=DEFAULT_PORT;
+		if(args.length==2)
+			if("-p".equals(args[0]))
+				port=Integer.parseInt(args[1]);
 		instance=new TcpServer();
 		instance.runServer();
 	}
@@ -28,10 +34,10 @@ public class TcpServer {
 		{
 			
 
-			Log.fatal("Starting Server");
+			Log.fatal("Starting Server on port "+port);
 			
 			
-			serverSocket=new ServerSocket(PORT);
+			serverSocket=new ServerSocket(port);
 			while(true)
 			{
 				try
@@ -52,7 +58,7 @@ public class TcpServer {
 		
 		catch(IOException e)
 		{
-			Log.fatal("Could not start server on port "+PORT);
+			Log.fatal("Could not start server on port "+DEFAULT_PORT);
 			e.printStackTrace();
 		}
 		

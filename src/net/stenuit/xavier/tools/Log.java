@@ -60,4 +60,8 @@ public class Log {
 		// logger.fine(msg);
 		logger.debug(msg);
 	}
+	public static synchronized void warn(String msg)
+	{
+		logger.warn(msg);
+	}
 }
