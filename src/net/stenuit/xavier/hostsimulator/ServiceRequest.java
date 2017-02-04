@@ -53,6 +53,10 @@ public class ServiceRequest implements Runnable {
 				{ // standard message don't have LEN there... 0A0400000000 is read
 				  // next tag should be F0
 				  if(is.read()!=0xF0) throw new ParserException("Expected F0 after 0A0400000000");
+				  // parse length
+				  // either one-byte - if len<=127
+				  // or two bytes - if len <=255
+				  // or 3 bytes - if len <= 65535
 				  byte len1st=(byte)is.read(); // length or 0x8x
 				  byte[] f0len;
 				  int remaining;
@@ -73,6 +77,9 @@ public class ServiceRequest implements Runnable {
 					  }
 				  }
 				  Log.debug("remaining bytes : "+remaining);
+				  // now, we now how many bytes to read, and the values of message :
+				  // A00400000000F0LL[LL][LL]{bytes}
+				  // So let's read the message
 				  rawMsg=new byte[6+1/*F0*/+1/*82*/+f0len.length/*013C*/+remaining];
 				  System.arraycopy(Converter.hex2bin("A00400000000F0"), 0, rawMsg, 0, 7);
 				  rawMsg[7]=len1st;
@@ -86,10 +93,11 @@ public class ServiceRequest implements Runnable {
 					is.read(rawMsg,6,len);
 				}
 				
+				// parses the input message to a CtapMessage structure
 				CtapParser p=new CtapParser();
 				CtapMessage msg=(CtapMessage)p.parse(rawMsg);
 				Log.debug(msg.dump());
-				// System.out.println(msg.dump());
+				
 				
 				byte[] msgtypeb=Converter.hex2bin(msg.getTag("F0.E1.D0"));
 				String msgtype=new String(msgtypeb,"ASCII");
@@ -105,13 +113,16 @@ public class ServiceRequest implements Runnable {
 				{
 					case "ci":
 						Log.info("Received C-INQ");
-						//os.write(RINQ.rinq(d1)); // answers with RINQ
+						// builds a RINQ message
 						retmsg=(CtapMessage)p.parse(RINQ.rinq(d1));
+						// adapts message with mandatory echoed tags
 						if(df1e!=null)retmsg.setTag("F0.E2.F5.DF1E", df1e);
 						if(df20!=null)retmsg.setTag("F0.E2.F5.DF20", df20);
 						if(t9f1c!=null)retmsg.setTag("F0.E2.F1.9F1C", t9f1c);
 						if(df68!=null)retmsg.setTag("F0.E2.FA.DF68", df68);
+						// provides a random authorization code
 						retmsg.setTag("F0.E2.F5.89", randomAuthCode());
+						// computes checksum, and fills appropriate message
 						retmsg.setTag("F0.E3.DF8153", retmsg.checksum());
 						
 						os.write(Converter.hex2bin(retmsg.rawDump()));
@@ -122,11 +133,14 @@ public class ServiceRequest implements Runnable {
 						break;
 					case "ct":
 						Log.info("Received C-TRA");
+						// builds a sandard RTRA message
 						retmsg=(CtapMessage)p.parse(RTRA.rtra(d1));
+						// sets the mandatory echoed tags
 						if(df1e!=null)retmsg.setTag("F0.E2.F5.DF1E", df1e);
 						if(df20!=null)retmsg.setTag("F0.E2.F5.DF20", df20);
 						if(t9f1c!=null)retmsg.setTag("F0.E2.F1.9F1C", t9f1c);
 						if(df68!=null)retmsg.setTag("F0.E2.FA.DF68", df68);
+						// computes and sets checksum
 						retmsg.setTag("F0.E3.DF8153", retmsg.checksum());
 						os.write(Converter.hex2bin(retmsg.rawDump()));
 						Log.debug("Returned R-TRA : \n"+retmsg.dump());
@@ -171,7 +185,7 @@ public class ServiceRequest implements Runnable {
 	}
 
 	/* REturns a 6 digit random number ASCII code (0x30,0x34,0x32,....)
-	 * 
+	 * - used for random authcode
 	 */
 	private String randomAuthCode() {
 		int r=new Random().nextInt(1000000);
