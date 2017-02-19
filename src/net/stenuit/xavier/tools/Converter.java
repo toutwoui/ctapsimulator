@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Converter {
-	public static String bin2hex(byte[] bin)
+	public static synchronized String bin2hex(byte[] bin)
 	{
 		final char[] nibble={'0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F'};
 		String ret="";
@@ -15,7 +15,7 @@ public class Converter {
 		}		
 		return ret;
 	}
-	public static byte[] hex2bin(String hex)
+	public static synchronized byte[] hex2bin(String hex)
 	{
 		hex=hex.toUpperCase();
 		boolean isNibble1=true;
@@ -57,6 +57,26 @@ public class Converter {
 		}
 		return rret;
 	}
+	/**
+	 * removes trailing zeroes from byte array
+	 * 
+	 * for example : in=1A58FB80000000 returns 1a58FB80
+	 * @param in
+	 * @return
+	 */
+	public static synchronized byte[]removeTrailingZeroes(byte[] in)
+	{
+		int i;
+		for(i=in.length-1;i>=0;i--)
+		{
+			Log.debug("i="+i+","+"in[i]="+in[i]);
+			if(in[i]!=0)break;
+		}
+		byte[] out=new byte[i+1];
+		System.arraycopy(in, 0, out, 0, i+1);
+		return out;
+	}
+	
 	public static void main(String[] args)
 	{
 		byte[] input=new byte[]{(byte)0xAB,(byte)0xCD,(byte)0x12,(byte)0x34,(byte)0xFF,(byte)0x00};

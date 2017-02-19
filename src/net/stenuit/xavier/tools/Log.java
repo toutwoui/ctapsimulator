@@ -64,4 +64,8 @@ public class Log {
 	{
 		logger.warn(msg);
 	}
+	public static synchronized void printStackTrace(Exception e)
+	{
+		logger.fatal("Exception thrown : ",e);
+	}
 }
