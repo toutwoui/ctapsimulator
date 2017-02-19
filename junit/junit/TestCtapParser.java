@@ -4,6 +4,7 @@ import static org.junit.Assert.*;
 
 import org.junit.Test;
 
+import net.stenuit.xavier.hostsimulator.RX;
 import net.stenuit.xavier.hostsimulator.protocol.Message;
 import net.stenuit.xavier.hostsimulator.protocol.ParserException;
 import net.stenuit.xavier.hostsimulator.protocol.ctap.CtapParser;
@@ -61,6 +62,7 @@ public class TestCtapParser {
 			(byte)0xCC,(byte)0x81,(byte)0x2F,(byte)0x5A,(byte)0x4E,(byte)0x10,(byte)0xD7,(byte)0xED,
 			(byte)0x84,(byte)0x1E,(byte)0x93};
 	
+	
 	@Test
 	public void testParse() {
 		CtapParser p=new CtapParser();
@@ -78,7 +80,33 @@ public class TestCtapParser {
 		{
 			fail(e.getMessage());
 		}
+	}
+	@Test
+	public void testRx()
+	{ // verifies that rX is parsable
 		
+		String expected="HDR:A00400000000\n"+
+"F0.E1.D0=7258\n"+
+"F0.E1.D1=00\n"+
+"F0.E1.D2=00\n"+
+"F0.E2.F1.9F1C=3030303030303030\n"+
+"F0.E2.F5.DF2D=0002\n"+
+"F0.E3.CA=0000\n";
+		
+		byte[] rX=RX.rx("0002");
+		CtapParser p=new CtapParser();
+		try
+		{
+			Message m=p.parse(rX);
+			System.out.println("rX dump :");
+			System.out.println(m.dump());
+			if(!expected.equals(m.dump()))
+				fail("dump of rX does not match expectation");
+		}
+		catch(ParserException e)
+		{
+			fail(e.getMessage());
+		}
 	}
 
 }

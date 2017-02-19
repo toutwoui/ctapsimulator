@@ -118,7 +118,7 @@ public class CtapParser extends Parser {
 			}
 			
 		}
-		if(!found)throw new ParserException("could not parse "+pos+"of message : "+Converter.bin2hex(rawData));
+		if(!found)throw new ParserException("could not parse byte "+pos+" of message : "+Converter.bin2hex(rawData));
 		len=decodeLength();
 		if(len<0)throw new ParserException("negative length ?");
 		if("c".equals(ctapTags.get(tagstr)))

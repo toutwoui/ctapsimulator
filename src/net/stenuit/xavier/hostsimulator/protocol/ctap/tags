@@ -351,3 +351,5 @@ FC,Financial Counter Information,x
 FD,Merchant Account Numbers,x
 FE,Currency Profile,x
 F0,Message,c
+DFFF10,some certification data,x
+DFFF12,yet more certification data,x

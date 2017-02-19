@@ -5,8 +5,14 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.Random;
 
+import net.stenuit.xavier.hostsimulator.props.Merchant;
+import net.stenuit.xavier.hostsimulator.props.Terminal;
+import net.stenuit.xavier.hostsimulator.protocol.Element;
 import net.stenuit.xavier.hostsimulator.protocol.ParserException;
 import net.stenuit.xavier.hostsimulator.protocol.ctap.CtapMessage;
 import net.stenuit.xavier.hostsimulator.protocol.ctap.CtapParser;
@@ -16,7 +22,7 @@ import net.stenuit.xavier.tools.Log;
 public class ServiceRequest implements Runnable {
 	private Socket socket;
 	private static final int SO_TIMEOUT=100; // how many milliseconds waiting for data on socket
-	private static final int MAX_MSG_LEN=2000; // Maximum message size
+	private static final int MAX_MSG_LEN=4096; // Maximum message size -usual value is 4096 according to CTAP.220
 	
 	public ServiceRequest(Socket connection) {
         this.socket = connection;
@@ -43,55 +49,19 @@ public class ServiceRequest implements Runnable {
 			byte[] lentbl=new byte[4];
 			try
 			{
-				is.read(new byte[2]); // 0x0A, 0x04
 				is.read(lentbl);
 				int len=((lentbl[0]&0xFF)<<24)+((lentbl[1]&0xFF)<<16)+((lentbl[2]&0xFF)<<8)+((lentbl[3]&0xFF));
-				if(len>MAX_MSG_LEN)throw new ParserException("Message too long : "+len+" bytes");
-				
-				byte[]rawMsg;
-				if(len==0)
-				{ // standard message don't have LEN there... 0A0400000000 is read
-				  // next tag should be F0
-				  if(is.read()!=0xF0) throw new ParserException("Expected F0 after 0A0400000000");
-				  // parse length
-				  // either one-byte - if len<=127
-				  // or two bytes - if len <=255
-				  // or 3 bytes - if len <= 65535
-				  byte len1st=(byte)is.read(); // length or 0x8x
-				  byte[] f0len;
-				  int remaining;
-				  if(len1st>0)
-				  {
-					  f0len=new byte[0]; // length is in f0len
-					  remaining=(int)len1st;
-				  }
-				  else
-				  {
-					  f0len=new byte[len1st&0x3];
-					  is.read(f0len); // read length
-					  remaining=0;
-					  for(int i=0;i<f0len.length;i++)
-					  {
-						  remaining=remaining<<8;
-						  remaining=remaining+(int)(f0len[i]&0xff);
-					  }
-				  }
-				  Log.debug("remaining bytes : "+remaining);
-				  // now, we now how many bytes to read, and the values of message :
-				  // A00400000000F0LL[LL][LL]{bytes}
-				  // So let's read the message
-				  rawMsg=new byte[6+1/*F0*/+1/*82*/+f0len.length/*013C*/+remaining];
-				  System.arraycopy(Converter.hex2bin("A00400000000F0"), 0, rawMsg, 0, 7);
-				  rawMsg[7]=len1st;
-				  System.arraycopy(f0len, 0, rawMsg, 8, f0len.length);
-				  is.read(rawMsg, 8+f0len.length, remaining);
-				}
-				else
+				if(len>MAX_MSG_LEN)
 				{
-					rawMsg=new byte[len+6];
-					System.arraycopy(lentbl, 0, rawMsg, 2, 4);
-					is.read(rawMsg,6,len);
+					while(is.available()>0)
+						is.read(); // evacuate all bytes in the pipe...
+					throw new ParserException("Message too long : "+len+" bytes");
 				}
+				
+				
+				byte[] rawMsg=new byte[len];
+				is.read(rawMsg);
+				  
 				
 				// parses the input message to a CtapMessage structure
 				CtapParser p=new CtapParser();
@@ -156,6 +126,9 @@ public class ServiceRequest implements Runnable {
 						break;
 					case "cp":
 						Log.info("Received C-PAR");
+						retmsg=answerCpar(msg);
+						os.write(Converter.hex2bin(retmsg.rawDump()));
+						Log.debug("Returned : \n"+retmsg.dump());
 						break;
 					case "rp":
 						Log.info("Received R-PAR");
@@ -182,6 +155,140 @@ public class ServiceRequest implements Runnable {
 			// the client closed
 		}
 		try{socket.close();}catch(IOException ioe){};
+	}
+
+	/**
+	 * Correctly answers CPAR message
+	 * @return
+	 */
+	private CtapMessage answerCpar(CtapMessage msg) {
+		CtapParser p=new CtapParser();
+		try
+		{
+		// 1 check message type
+		if(!"6370".equals(msg.getTag("F0.E1.D0")))throw new Exception("Message Type Identifier for C-PAR should be 'cp'");
+		// 2 check mandatory fields
+		final String[] mandatory={"F0.E1.D0","F0.E1.D1","F0.E1.D3","F0.E2.F1.9F1C","F0.E2.F1.DF04","F0.E2.F1.DF05","F0.E2.F1.9F1E",
+				"F0.E2.F1.DF08","F0.E2.F1.9F1A","F0.E2.F1.9F33","F0.E2.F1.9F40","F0.E2.F1.9F35","F0.E2.F1.DF0A",
+				"F0.E2.F2.DF12","F0.E2.F2.DF15","F0.E2.F2.DF16","F0.E2.F9.9F1C","F0.E2.F9.DF60","F0.E2.F9.DF62","F0.E2.F9.D4",
+				"F0.E2.F9.E8"};
+		
+		for(String m:mandatory)
+		{
+			if(msg.getTag(m)==null)throw new Exception("Mandatory tag "+m+ "not found");
+		}
+		
+		Log.debug("CPAR was valid - generating RPAR");
+		
+		return generateRpar(msg);
+		}
+		catch(Exception e)
+		{ // in case of problem, answers with rX
+			Log.warn("Rejected C-PAR : "+e.getMessage());
+			CtapMessage ret=null;
+			try
+			{
+				ret=(CtapMessage)p.parse(RX.rx("0002"));
+			}
+			catch(ParserException pe)
+			{
+				Log.error("Problem generating rX");
+			}
+			return ret;
+		}
+		
+	}
+
+	/**
+	 * Generates a RPAR, based on a given CPAR
+	 * @param msg
+	 * @return
+	 */
+	private CtapMessage generateRpar(CtapMessage msg) {
+		CtapMessage rpar=new CtapMessage();
+		rpar.setHeader(Converter.hex2bin("A00400000000"));
+		ArrayList<Element> al;
+		String host_incident_code="0000";
+		
+		// if merchant does not exists -> host_incident_code=0001
+		// if terminal does not exists -> host_incident_code=0002
+		
+		String m=msg.getTag("F0.E2.FB.EF.9F16").substring(0,20);
+		Log.debug("MID from tag : >"+m+"<");
+		String tid=new String(Converter.hex2bin(msg.getTag("F0.E2.F1.9F1C")));
+		String mid=new String(Converter.removeTrailingZeroes(Converter.hex2bin(m)));
+		boolean tidfound=false;
+		boolean midfound=false;
+		Log.debug("Searching TID:"+tid);
+		Log.debug("and MID:"+mid);
+		
+		for(Merchant merchant:TcpServer.hostSimulator.getMerchants())
+		{
+			// 1234567890 with 
+			// 1234567890
+			Log.debug("Comparing "+merchant.getMerchantId()+" with "+mid);
+			if(merchant.getMerchantId().equals(mid))
+			{
+				midfound=true;
+				for(Terminal terminal:merchant.getTerminal())
+				{
+					Log.debug("Comparing "+terminal.getTerminalId()+" with "+tid);
+					if(terminal.getTerminalId().equalsIgnoreCase(tid))
+						tidfound=true;
+				}
+			}
+		}
+		
+		Log.debug("Tid found:"+tidfound);
+		Log.debug("Mid found:"+midfound);
+		if(!tidfound)host_incident_code="0002";
+		if(!midfound)host_incident_code="0003";
+		
+		
+		// Build answer
+		// ====Message Header====
+		Element D0=new Element("D0",Converter.bin2hex("rp".getBytes()));
+		Element D1=new Element("D1",msg.getTag("F0.E1.D1"));
+		Element D2=new Element("D2",msg.getTag("F0.E1.D2"));
+		al=new ArrayList<Element>();
+		al.add(D0);
+		al.add(D1);
+		al.add(D2);
+		Element E1=new Element("E1",al);
+		
+		// ====Message Body====
+		// ===Terminal Group===
+		Element tag_9f1c=new Element("9F1C",msg.getTag("F0.E2.F1.9F1C"));
+		// TODO support for "request for action"
+		al=new ArrayList<Element>();
+		al.add(tag_9f1c);
+		Element F1=new Element("F1",al);
+		al=new ArrayList<Element>();
+		al.add(F1);
+		Element E2=new Element("E2",al);
+		
+		// ===Transaction Group===
+		SimpleDateFormat sdf=new SimpleDateFormat("yyyyMMddHHmmss");
+		Element DF27=new Element("DF27",sdf.format(new Date()));
+		Element DF2E=new Element("DF2E",host_incident_code);
+		al=new ArrayList<Element>();
+		al.add(DF27);
+		al.add(DF2E);
+		Element F5=new Element("F5",al);
+		
+		// ===
+		
+		al=new ArrayList<Element>();
+		al.add(E1);
+		al.add(E2);
+		al.add(F5);
+		
+		Element F0=new Element("F0",al);
+		
+		rpar.setRootElement(F0);
+		
+		Log.info(rpar.dump());
+		return rpar;
 	}
 
 	/* REturns a 6 digit random number ASCII code (0x30,0x34,0x32,....)
