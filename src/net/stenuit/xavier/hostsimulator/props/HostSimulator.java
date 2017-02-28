@@ -12,8 +12,10 @@ import javax.xml.bind.annotation.XmlRootElement;
 public class HostSimulator {
 	
 	private ArrayList<Merchant> merchants;
-	
 	private ArrayList<Card>cards;
+	private String updateFrequency;
+	private String connectionData;
+	private String currencyProfile;
 	
 	@XmlElement(required=true,name="merchant")
 	public ArrayList<Merchant> getMerchants() {
@@ -29,5 +31,28 @@ public class HostSimulator {
 	}
 	public void setCards(ArrayList<Card> cards) {
 		this.cards = cards;
+	}
+	
+	@XmlElement(required=false,name="updateFrequency")
+	public String getUpdateFrequency() {
+		return updateFrequency;
+	}
+	public void setUpdateFrequency(String updateFrequency) {
+		this.updateFrequency = updateFrequency;
+	}
+	@XmlElement(required=false,name="connectionData")
+	public String getConnectionData() {
+		return connectionData;
+	}
+	public void setConnectionData(String connectionData) {
+		this.connectionData = connectionData;
+	}
+	
+	@XmlElement(required=false,name="currencyProfile")
+	public String getCurrencyProfile() {
+		return currencyProfile;
+	}
+	public void setCurrencyProfile(String currencyProfile) {
+		this.currencyProfile = currencyProfile;
 	}
 }

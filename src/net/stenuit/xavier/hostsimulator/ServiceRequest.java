@@ -7,9 +7,11 @@ import java.net.Socket;
 import java.net.SocketTimeoutException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.Random;
 
+import net.stenuit.xavier.hostsimulator.props.HostSimulator;
 import net.stenuit.xavier.hostsimulator.props.Merchant;
 import net.stenuit.xavier.hostsimulator.props.Terminal;
 import net.stenuit.xavier.hostsimulator.protocol.Element;
@@ -263,9 +265,6 @@ public class ServiceRequest implements Runnable {
 		al=new ArrayList<Element>();
 		al.add(tag_9f1c);
 		Element F1=new Element("F1",al);
-		al=new ArrayList<Element>();
-		al.add(F1);
-		Element E2=new Element("E2",al);
 		
 		// ===Transaction Group===
 		SimpleDateFormat sdf=new SimpleDateFormat("yyyyMMddHHmmss");
@@ -276,13 +275,39 @@ public class ServiceRequest implements Runnable {
 		al.add(DF2E);
 		Element F5=new Element("F5",al);
 		
-		// ===
+		// ===Acquirer parameter group===
+		Element DF68=new Element("DF68",msg.getTag("F0.E2.FA.DF68")); // echo
+		Element DF6B=new Element("DF6B","00000001");
+		Calendar c=Calendar.getInstance();
+		if(TcpServer.hostSimulator.getUpdateFrequency()!=null)
+		{ // use updateFrequency to add a value to current timestamp
+			c.add(Calendar.SECOND,Integer.parseInt(TcpServer.hostSimulator.getUpdateFrequency()));
+		}
+		else
+		{ // by default - next update time is 1 day
+			c.add(Calendar.DATE,1);
+		}
+		Element DF63=new Element("DF63",sdf.format(c.getTime()));
+		
+		
+		al=new ArrayList<Element>();
+		al.add(DF68);
+		al.add(DF6B);
+		al.add(DF63);
+		if(TcpServer.hostSimulator.getConnectionData()!=null) al.add(new Element("EE",TcpServer.hostSimulator.getConnectionData()));
+		if(TcpServer.hostSimulator.getCurrencyProfile()!=null) al.add(new Element("FE",TcpServer.hostSimulator.getCurrencyProfile()));
+		
+		Element FA=new Element("FA",al);
+		
+		al=new ArrayList<Element>();
+		al.add(F1);
+		al.add(F5);
+		al.add(FA);
+		Element E2=new Element("E2",al);
 		
 		al=new ArrayList<Element>();
 		al.add(E1);
 		al.add(E2);
-		al.add(F5);
-		
 		Element F0=new Element("F0",al);
 		
 		rpar.setRootElement(F0);

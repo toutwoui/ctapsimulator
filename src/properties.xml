@@ -13,5 +13,7 @@
     <available>123</available>
     <returnCode>123</returnCode>
   </card>
-  <lastSequenceNumber>123</lastSequenceNumber>
+  <updateFrequency>3600</updateFrequency> <!-- how much time (in second) before terminals should send their next CPAR (DF63=Date For update) -->
+  <!-- <connectionData></connectionData> --> <!--  hex dump of connection data tag (EE) to provide in RPAR responses -->
+  <currencyProfile>EF095F2A0209785F360102</currencyProfile> <!--  hex dump of currency profile tag (FE) to profide in RPAR response-->
 </HostSimulator>
