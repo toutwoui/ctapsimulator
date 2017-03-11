@@ -16,4 +16,13 @@
   <updateFrequency>3600</updateFrequency> <!-- how much time (in second) before terminals should send their next CPAR (DF63=Date For update) -->
   <!-- <connectionData></connectionData> --> <!--  hex dump of connection data tag (EE) to provide in RPAR responses -->
   <currencyProfile>EF095F2A0209785F360102</currencyProfile> <!--  hex dump of currency profile tag (FE) to profide in RPAR response-->
+  <allowedTerminalMode>08</allowedTerminalMode> <!-- 08=online 04=Semionline 02=semioffline 1=fulloffline (?) -->
+  <optionalDataElementSupport>00</optionalDataElementSupport> <!-- bit1:Acquirer Discretionary Data, bit2:Merchant Reference -->
+  <allowedServices>8000</allowedServices> <!-- 8000=Payment, 2000=Pre-auth, 1000=Completion, 0080=Cancellation -->
+  <allowedCardEntryModes>20</allowedCardEntryModes> <!-- 20=ICC, 24=ICC+contactless -->
+  <cardBrandRiskManagement>ED2EDF4C0400000000DF4A04000000009F1B0400000000DF5A0100DF5C06000000000000DF5B0199DF4B0100DF4D0100</cardBrandRiskManagement>
+  <cardholderVerificationModes>80</cardholderVerificationModes> <!-- 80 : plaintext PIN for ICC verification -->
+  <pinLengthType>02</pinLengthType> <!-- 02 : always 4 digits -->
+  
+  <card></card>
 </HostSimulator>

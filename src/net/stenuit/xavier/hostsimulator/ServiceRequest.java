@@ -5,6 +5,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
+import java.security.MessageDigest;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -186,7 +187,7 @@ public class ServiceRequest implements Runnable {
 		}
 		catch(Exception e)
 		{ // in case of problem, answers with rX
-			Log.warn("Rejected C-PAR : "+e.getMessage());
+			Log.warn("CPAR/RPAR exception : "+e.getMessage());
 			CtapMessage ret=null;
 			try
 			{
@@ -276,8 +277,13 @@ public class ServiceRequest implements Runnable {
 		Element F5=new Element("F5",al);
 		
 		// ===Acquirer parameter group===
+		al=new ArrayList<Element>();
 		Element DF68=new Element("DF68",msg.getTag("F0.E2.FA.DF68")); // echo
+		al.add(DF68);
+		
 		Element DF6B=new Element("DF6B","00000001");
+		al.add(DF6B);
+		
 		Calendar c=Calendar.getInstance();
 		if(TcpServer.hostSimulator.getUpdateFrequency()!=null)
 		{ // use updateFrequency to add a value to current timestamp
@@ -288,26 +294,91 @@ public class ServiceRequest implements Runnable {
 			c.add(Calendar.DATE,1);
 		}
 		Element DF63=new Element("DF63",sdf.format(c.getTime()));
-		
-		
-		al=new ArrayList<Element>();
-		al.add(DF68);
-		al.add(DF6B);
 		al.add(DF63);
-		if(TcpServer.hostSimulator.getConnectionData()!=null) al.add(new Element("EE",TcpServer.hostSimulator.getConnectionData()));
-		if(TcpServer.hostSimulator.getCurrencyProfile()!=null) al.add(new Element("FE",TcpServer.hostSimulator.getCurrencyProfile()));
+		
+		if(TcpServer.hostSimulator.getConnectionData()!=null)al.add(new Element("EE",TcpServer.hostSimulator.getConnectionData()));
+		
+		al.add(new Element("FE",TcpServer.hostSimulator.getCurrencyProfile()));
+		
+		Element DF814D=new Element("DF814D",TcpServer.hostSimulator.getAllowedTerminalMode());
+		al.add(DF814D);
+		
+		Element DF8152=new Element("DF8152",TcpServer.hostSimulator.getOptionalDataElementSupport());
+		al.add(DF8152);
 		
 		Element FA=new Element("FA",al);
+		// ===End Acquirer Parameter Group
 		
+		// ===Card Brand Table===
+		Element FB=null;
+		if("0000".equals(host_incident_code))
+		{
+			// find all "brands" from input message
+			Log.debug("input card brand table : "+msg.getTag("F0.E2.FB.EF"));
+			// TODO : it seems that there are two forms possible there
+			// FORM1 : only one brand : DF5F023003...
+			// FORM2 : several brands : DF5F023003...DF5F023004....
+			// only FORM1 is supported (single brand host simulator)
+	
+			Element DF5F=new Element("DF5F",msg.getTag("F0.E2.FB.EF.DF5F"));
+			Element DF7F=new Element("DF7F",msg.getTag("F0.E2.FB.EF.DF7F")); //theorically, we should not echo
+			if("00000000".equals(DF7F.getValue())) DF7F=new Element("DF7F","00000001"); // initial CPAR - terminal does not card brand parameter identifier
+			Element T9F16=new Element("9F16",msg.getTag("F0.E2.FB.EF.9F16"));
+			Element DF4F=new Element("DF4F",TcpServer.hostSimulator.getAllowedServices());
+			Element DF42=new Element("DF42",TcpServer.hostSimulator.getAllowedCardEntryModes());
+			Element ED=new Element("ED",TcpServer.hostSimulator.getCardBrandRiskManagement());
+			Element DF3D=new Element("DF3D",TcpServer.hostSimulator.getCardholderVerificationModes());
+			Element DF4E=new Element("DF4E",TcpServer.hostSimulator.getPinLengthType());
+			
+			al=new ArrayList<Element>();
+			al.add(DF5F);
+			al.add(DF7F);
+			al.add(T9F16);
+			al.add(DF2E); // will always be 0000 as of writing
+			al.add(DF4F);
+			al.add(DF42);
+			al.add(ED);
+			al.add(DF4E);
+			Element EF=new Element("EF",al);
+			al=new ArrayList<Element>();
+			al.add(EF);
+			FB=new Element("FB",al);
+		}
+
 		al=new ArrayList<Element>();
 		al.add(F1);
 		al.add(F5);
 		al.add(FA);
+		if(FB!=null)al.add(FB);
 		Element E2=new Element("E2",al);
+		// ====End Message Body====
 		
+		// === Message Footer===
+		String f0e2=E2.rawDump();
+		MessageDigest messageDigest;
+		String cksum2="0000000000000000000000000000000000000000";
+		try
+		{
+			messageDigest=MessageDigest.getInstance("SHA-1");
+			messageDigest.reset();
+			messageDigest.update(Converter.hex2bin(f0e2));
+			cksum2=Converter.bin2hex(messageDigest.digest());
+			
+		}
+		catch(Exception e)
+		{
+			Log.fatal("SHA-1 algorithm not found.  Please check your java installation");
+		}
+		Element DF8153=new Element("DF8153",cksum2);
+		al=new ArrayList<Element>();
+		al.add(DF8153);
+		Element E3=new Element("E3",al);
+		
+		// === End Message Footer ===
 		al=new ArrayList<Element>();
 		al.add(E1);
 		al.add(E2);
+		al.add(E3);
 		Element F0=new Element("F0",al);
 		
 		rpar.setRootElement(F0);
