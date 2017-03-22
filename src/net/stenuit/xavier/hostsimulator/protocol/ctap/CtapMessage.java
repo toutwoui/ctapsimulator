@@ -60,7 +60,12 @@ public class CtapMessage extends Message {
 			ret+=Converter.bin2hex(new byte[]{(byte)0x82,(byte)(F0len>>8),(byte)(F0len&0xFF)});
 		}
 		ret+=F0contents;
-		return ret;
+		
+		int msglen=ret.length()/2;
+		byte[] msglentbl=new byte[4];
+		msglentbl[2]=(byte)(msglen>>8);
+		msglentbl[3]=(byte)(msglen&0xFF);
+		return Converter.bin2hex(msglentbl)+ret;
 	}
 	/**
 	 * Finds all occurences of given tag

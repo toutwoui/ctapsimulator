@@ -85,7 +85,7 @@ public class TestCtapParser {
 	public void testRx()
 	{ // verifies that rX is parsable
 		
-		String expected="HDR:A00400000000\n"+
+		String expected="HDR:0A0400000000\n"+
 "F0.E1.D0=7258\n"+
 "F0.E1.D1=00\n"+
 "F0.E1.D2=00\n"+

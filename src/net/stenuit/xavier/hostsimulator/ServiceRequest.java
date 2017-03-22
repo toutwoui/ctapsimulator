@@ -209,7 +209,7 @@ public class ServiceRequest implements Runnable {
 	 */
 	private CtapMessage generateRpar(CtapMessage msg) {
 		CtapMessage rpar=new CtapMessage();
-		rpar.setHeader(Converter.hex2bin("A00400000000"));
+		rpar.setHeader(Converter.hex2bin("0A0400000000"));
 		ArrayList<Element> al;
 		String host_incident_code="0000";
 		

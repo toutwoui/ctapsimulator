@@ -3,7 +3,7 @@ package net.stenuit.xavier.hostsimulator;
 import net.stenuit.xavier.tools.Converter;
 
 public class RX {
-private static final String msg="A00400000000F028E10AD0027258D10100D20100E214F10B9F1C083030303030303030F505DF2D020000E304CA020000";
+private static final String msg="0A0400000000F028E10AD0027258D10100D20100E214F10B9F1C083030303030303030F505DF2D020000E304CA020000";
 	
 	public static synchronized byte[] rx()
 	{
